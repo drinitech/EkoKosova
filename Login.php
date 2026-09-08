@@ -1,5 +1,4 @@
 <?php
-session_start();
 include_once('config.php');
 
 
@@ -113,7 +112,6 @@ if(isset($_POST['submit'])){
             <button class="login-btn" type="submit" name="submit">Kyçu</button>
         </form>
 
-        <?php session_start(); ?>
         <a href="forgot_password.php?from=login">Keni harruar fjalekalimin tuaj?</a>
         <a href="Signup.php">Regjistrohu</a>
     </div>

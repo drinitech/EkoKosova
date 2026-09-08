@@ -1,6 +1,6 @@
 <?php
-session_start();
 include 'config.php';
+require_once 'blob_storage.php';
 
 if(!isset($_SESSION['user_id']) || $_SESSION['is_admin'] != 1){
     header("Location: Login.php");
@@ -60,13 +60,11 @@ if(isset($_POST['submit'])){
         if(isset($_FILES['autor_img']) && $_FILES['autor_img']['error'] == 0){
             $ext = pathinfo($_FILES['autor_img']['name'], PATHINFO_EXTENSION);
             $filename = uniqid() . "." . $ext;
-            $target = "uploads/" . $filename; // folderi ekziston
+            $stored = save_uploaded_file($_FILES['autor_img']['tmp_name'], $filename);
 
-            if(move_uploaded_file($_FILES['autor_img']['tmp_name'], $target)){
-                if($autor_img && file_exists($autor_img)){
-                    unlink($autor_img);
-                }
-                $autor_img = $target;
+            if($stored){
+                delete_uploaded_file($autor_img);
+                $autor_img = $stored;
             } else {
                 $error_message = "⚠️ Ndodhi një gabim gjatë ngarkimit të fotos.";
             }

@@ -1,6 +1,6 @@
 <?php
-session_start();
 include 'config.php';
+require_once 'blob_storage.php';
 
 if(!isset($_SESSION['user_id']) || $_SESSION['is_admin'] != 1){
     header("Location: Login.php");
@@ -78,13 +78,11 @@ if(isset($_POST['submit'])){
             $error_message = "Format i pa lejuar për foton. Përdor jpg, jpeg, png ose gif.";
         } else {
             $filename = uniqid() . "." . $ext; // e krijon ni emer unik edhe i largohet overwrite
-            $target = "uploads/" . $filename;
-            if(move_uploaded_file($_FILES['photo']['tmp_name'], $target)){
+            $storedPhoto = save_uploaded_file($_FILES['photo']['tmp_name'], $filename);
+            if($storedPhoto){
                 // Fshi foton e vjetër
-                if($photo && file_exists("uploads/".$photo)){
-                    unlink("uploads/".$photo); // e fshin foton e vjeter nga serveri
-                }
-                $photo = $filename; // gati per ne databaze
+                delete_uploaded_file($photo);
+                $photo = $storedPhoto; // gati per ne databaze
             } else {
                 $error_message = "Ndodhi një gabim gjatë ngarkimit të fotos.";
             }
@@ -356,8 +354,8 @@ input[type=submit]:hover {
         <textarea name="description" rows="5"><?= htmlspecialchars($old['description']) ?></textarea>
 
         <label>Foto ekzistuese:</label><br>
-        <?php if($report['photo'] && file_exists("uploads/".$report['photo'])): ?>
-            <img src="uploads/<?= htmlspecialchars($report['photo']) ?>" alt="foto raportit" class="preview"><br>
+        <?php if(!empty($report['photo'])): ?>
+            <img src="<?= htmlspecialchars(resolve_upload_url($report['photo'])) ?>" alt="foto raportit" class="preview"><br>
         <?php else: ?>
             <p>Nuk ka foto të ngarkuar</p>
         <?php endif; ?>

@@ -1,5 +1,4 @@
 <?php
-session_start();
 include 'config.php';
 
     // Vetëm admin mund të hyjë

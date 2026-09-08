@@ -1,6 +1,6 @@
 <?php
-session_start();
 include_once('config.php');
+require_once 'blob_storage.php';
 
 if (isset($_POST['submit'])) {
 
@@ -83,13 +83,13 @@ if (isset($_POST['submit'])) {
             $ext = pathinfo($_FILES['profile_pic']['name'], PATHINFO_EXTENSION);
 
             // e krijon nje emer unik per file-in per me u largu nga konfliktet dmth overwrite
-            $filename = 'uploads/profile_' . time() . '.' . $ext;
+            $filename = 'profile_' . time() . '.' . $ext;
 
-            // e leviz file-in ne folderin e duhur
-            move_uploaded_file($_FILES['profile_pic']['tmp_name'], $filename);
+            // e ruan file-in (Blob ne Vercel, ose lokalisht ne uploads/)
+            $stored = save_uploaded_file($_FILES['profile_pic']['tmp_name'], $filename);
 
             // e vendos path-in e fotos se re ne databaze
-            $profile_pic = $filename;
+            if ($stored) $profile_pic = $stored;
         }
     }
 

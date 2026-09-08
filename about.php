@@ -1,5 +1,4 @@
 <?php
-session_start();
 include 'config.php';
 
 $profile_pic = 'uploads/member.png'; 

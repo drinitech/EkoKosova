@@ -1,6 +1,6 @@
 <?php
-session_start();
 include 'config.php';
+require_once 'blob_storage.php';
 
 $error_message = ""; 
 $success_message = "";
@@ -19,14 +19,10 @@ if(isset($_SESSION['user_id']) && isset($_POST['submit'])){
         if($_FILES['autor_img']['error'] == 0){
             $ext = pathinfo($_FILES['autor_img']['name'], PATHINFO_EXTENSION);
             $filename = uniqid() . "." . $ext;
-            $target = "uploads/" . $filename;
+            $stored = save_uploaded_file($_FILES['autor_img']['tmp_name'], $filename);
 
-            if(!is_dir('uploads')){
-                mkdir('uploads', 0777, true);
-            }
-
-            if(move_uploaded_file($_FILES['autor_img']['tmp_name'], $target)){
-                $autor_img = $target;
+            if($stored){
+                $autor_img = $stored;
             } else {
                 $error_message = "⚠️ Ndodhi një gabim gjatë ngarkimit të fotos.";
             }

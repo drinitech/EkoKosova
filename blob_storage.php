@@ -29,7 +29,6 @@ function blob_upload_file($tmpPath, $filename)
     ]);
     $response = curl_exec($ch);
     $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-    curl_close($ch);
 
     if ($status !== 200 || !$response) return false;
     $json = json_decode($response, true);
@@ -53,7 +52,6 @@ function blob_delete_file($url)
         CURLOPT_RETURNTRANSFER => true,
     ]);
     curl_exec($ch);
-    curl_close($ch);
 }
 
 // Ruan nje skedar te ngarkuar (nga $_FILES[...]['tmp_name']) dhe kthen

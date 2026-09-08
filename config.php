@@ -12,14 +12,39 @@ function env($key, $default = null)
     return $default;
 }
 
-$server = env('DB_HOST', 'localhost');
-$port = env('DB_PORT', '3306');
-$dbname = env('DB_NAME', 'ekokosova');
-$user = env('DB_USER', 'root');
-$pass = env('DB_PASS', 'root');
+// Ne Vercel lidhemi me Postgres (Neon, permes DATABASE_URL). Lokalisht ne
+// MAMP perdorim MySQL ashtu si me pare (nuk ka DATABASE_URL te vendosur).
+$databaseUrl = env('DATABASE_URL') ?: env('POSTGRES_URL');
 
 try {
-    $conn = new PDO("mysql:host=$server;port=$port;dbname=$dbname;charset=utf8", $user, $pass);
+    if ($databaseUrl) {
+        $parts = parse_url($databaseUrl);
+        $pgHost = $parts['host'];
+        $pgPort = $parts['port'] ?? 5432;
+        $pgDb = ltrim($parts['path'], '/');
+        $pgUser = urldecode($parts['user']);
+        $pgPass = urldecode($parts['pass'] ?? '');
+
+        // Neon perdor emra host-esh te ndare (nje endpoint per DB) prapa nje
+        // hostname te perbashket, dhe ka nevoje per SNI qe ta gjeje endpoint-in
+        // e sakte. libpq-ja e vjeter e ketij runtime-i s'e mbeshtet SNI, keshtu
+        // qe endpoint ID (pjesa e pare e hostname-it) duhet kaluar shprehimisht.
+        $endpointId = strstr($pgHost, '.', true) ?: $pgHost;
+
+        $conn = new PDO(
+            "pgsql:host=$pgHost;port=$pgPort;dbname=$pgDb;sslmode=require;options=endpoint=$endpointId",
+            $pgUser,
+            $pgPass
+        );
+    } else {
+        $server = env('DB_HOST', 'localhost');
+        $port = env('DB_PORT', '3306');
+        $dbname = env('DB_NAME', 'ekokosova');
+        $user = env('DB_USER', 'root');
+        $pass = env('DB_PASS', 'root');
+
+        $conn = new PDO("mysql:host=$server;port=$port;dbname=$dbname;charset=utf8", $user, $pass);
+    }
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
 } catch (PDOException $e) {

@@ -21,14 +21,14 @@ if (isset($_POST['submit'])) {
     // e kontrollon nese ka input te zbrazet
     if (empty($name) || empty($username) || empty($email) || empty($password) || empty($confirm)) {
         $_SESSION['error_message'] = "⚠️ Plotësoni të gjitha fushat.";
-        header("Location: SignUp.php");
+        header("Location: Signup.php");
         exit;
     }
 
     // nese passwordet nuk perputhen
     if ($password !== $confirm) {
         $_SESSION['error_message'] = "⚠️ Fjalëkalimet nuk përputhen.";
-        header("Location: SignUp.php");
+        header("Location: Signup.php");
         exit;
     }
 
@@ -41,14 +41,14 @@ if (isset($_POST['submit'])) {
     ) {
         $_SESSION['error_message'] =
             "⚠️ Fjalëkalimi duhet të ketë minimum 6 karaktere, një shkronjë të madhe, një numër dhe një simbol.";
-        header("Location: SignUp.php");
+        header("Location: Signup.php");
         exit;
     }
 
     // Email valid
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $_SESSION['error_message'] = "⚠️ Email-i duhet të ketë format të saktë.";
-        header("Location: SignUp.php");
+        header("Location: Signup.php");
         exit;
     }
 
@@ -63,7 +63,7 @@ if (isset($_POST['submit'])) {
 
     if ($check->rowCount() > 0) {
         $_SESSION['error_message'] = "⚠️ Username ose email ekziston tashmë.";
-        header("Location: SignUp.php");
+        header("Location: Signup.php");
         exit;
     }
 
@@ -118,7 +118,7 @@ if (isset($_POST['submit'])) {
 
     // Nëse diçka dështon
     $_SESSION['error_message'] = "⚠️ Ndodhi një gabim gjatë regjistrimit.";
-    header("Location: SignUp.php");
+    header("Location: Signup.php");
     exit;
 }
 ?>

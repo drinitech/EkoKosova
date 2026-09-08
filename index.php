@@ -1,6 +1,6 @@
 <?php
-session_start();
 include 'config.php';
+require_once 'blob_storage.php';
 
 $profile_pic = 'uploads/member.png';
 
@@ -144,7 +144,7 @@ $reports = $latestReports->fetchAll(PDO::FETCH_ASSOC);
             <div class="report-card">
 
                 <?php if(!empty($report['photo'])): ?>
-                    <img src="uploads/<?php echo htmlspecialchars($report['photo']); ?>">
+                    <img src="<?php echo htmlspecialchars(resolve_upload_url($report['photo'])); ?>">
                 <?php else: ?>
                     <img src="uploads/member.png">
                 <?php endif; ?>

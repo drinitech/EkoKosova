@@ -1,6 +1,6 @@
 <?php
-session_start();
 include 'config.php';
+require_once 'blob_storage.php';
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: Login.php");
@@ -23,9 +23,7 @@ if (isset($_POST['submit'])) {
 
 
     if (isset($_POST['delete_photo_pic']) && $_POST['delete_photo_pic'] == '1') {
-        if (!empty($user['profile_pic']) && file_exists($user['profile_pic']) && $user['profile_pic'] != 'uploads/member.png') {
-            unlink($user['profile_pic']); // fshin file nga serveri
-        }
+        delete_uploaded_file($user['profile_pic']); // fshin file nga serveri
         $profile_pic = 'uploads/member.png'; // vendos default foton
     }
 
@@ -50,9 +48,9 @@ if (isset($_POST['submit'])) {
         if (in_array($_FILES['profile_pic']['type'], $allowed_types)) {
             $ext = pathinfo($_FILES['profile_pic']['name'], PATHINFO_EXTENSION); // e merr edhe extension e file psh .png , .jpg.
 
-            $filename = 'img/profile_' . $user_id . '_' . time() . '.' . $ext;
-            move_uploaded_file($_FILES['profile_pic']['tmp_name'], $filename); // tmp_name perdoret per me rujt files ne php
-            $profile_pic = $filename;
+            $filename = 'profile_' . $user_id . '_' . time() . '.' . $ext;
+            $stored = save_uploaded_file($_FILES['profile_pic']['tmp_name'], $filename); // Blob ne Vercel, ose lokalisht ne uploads/
+            if ($stored) $profile_pic = $stored;
         }
         
     }

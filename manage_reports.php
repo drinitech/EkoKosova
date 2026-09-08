@@ -1,6 +1,6 @@
 <?php
-session_start();
 include 'config.php';
+require_once 'blob_storage.php';
 
 // Vetëm admin mund të hyjë
 if(!isset($_SESSION['user_id']) || $_SESSION['is_admin'] != 1){
@@ -16,8 +16,8 @@ if(isset($_GET['delete'])){
     $reportQuery->execute([$id]);
     $report = $reportQuery->fetch(PDO::FETCH_ASSOC);
 
-    if($report && $report['photo'] && file_exists("uploads/".$report['photo'])){
-        unlink("uploads/".$report['photo']);
+    if($report && $report['photo']){
+        delete_uploaded_file($report['photo']);
     }
 
     $deleteQuery = $conn->prepare("DELETE FROM reports WHERE id=?");
@@ -528,7 +528,7 @@ footer.footer {
     </td>
     <td>
         <?php if($r['photo']): ?>
-            <img src="uploads/<?= htmlspecialchars($r['photo']) ?>" alt="foto raportit">
+            <img src="<?= htmlspecialchars(resolve_upload_url($r['photo'])) ?>" alt="foto raportit">
         <?php endif; ?>
     </td>
     <td><?= date('d.m.Y H:i', strtotime($r['created_at'])) ?></td>

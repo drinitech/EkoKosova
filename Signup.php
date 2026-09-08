@@ -1,5 +1,5 @@
 <?php
-session_start();
+include 'config.php';
 
 $success_message = $_SESSION['success_message'] ?? "";
 $error_message = $_SESSION['error_message'] ?? "";

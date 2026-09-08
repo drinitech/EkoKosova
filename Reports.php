@@ -1,6 +1,6 @@
 <?php
-session_start();
 include 'config.php';
+require_once 'blob_storage.php';
 
 
     $profile_pic = 'uploads/member.png';
@@ -78,9 +78,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_report'])) {
         exit;
     } else {
         $photoName = time() . "_" . basename($_FILES['photo']['name']);
-        $target = "uploads/" . $photoName;
+        $storedPhoto = save_uploaded_file($_FILES['photo']['tmp_name'], $photoName);
 
-        if (!move_uploaded_file($_FILES['photo']['tmp_name'], $target)) {
+        if (!$storedPhoto) {
             $_SESSION['error'] = "Gabim gjate ngarkimit te fotos ❌";
             header("Location: Reports.php");
             exit;
@@ -116,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_report'])) {
         ':city' => $city,
         ':type' => $type,
         ':description' => $description,
-        ':photo' => $photoName
+        ':photo' => $storedPhoto
     ])) {
         $_SESSION['success'] = "Raporti u dergua me sukses ✅";
         header("Location: Reports.php");
@@ -301,7 +301,7 @@ $reports = $latestReports->fetchAll(PDO::FETCH_ASSOC);
             <div class="report-card">
 
                 <?php if(!empty($report['photo'])): ?>
-                    <img src="uploads/<?php echo htmlspecialchars($report['photo']); ?>">
+                    <img src="<?php echo htmlspecialchars(resolve_upload_url($report['photo'])); ?>">
                 <?php else: ?>
                     <img src="img/no-image.png">
                 <?php endif; ?>

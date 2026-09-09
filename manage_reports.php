@@ -1,6 +1,7 @@
 <?php
 include 'config.php';
 require_once 'blob_storage.php';
+require_once 'cities.php';
 
 // Vetëm admin mund të hyjë
 if(!isset($_SESSION['user_id']) || $_SESSION['is_admin'] != 1){
@@ -521,7 +522,7 @@ footer.footer {
     <td><?= $r['user_id'] ?></td>
     <td><?= htmlspecialchars($r['name']) ?></td>
     <td><?= htmlspecialchars($r['email']) ?></td>
-    <td><?= htmlspecialchars($r['city']) ?></td>
+    <td><?= htmlspecialchars(city_label($r['city'])) ?></td>
     <td><?= htmlspecialchars($r['type']) ?></td>
     <td class="description" data-full="<?= htmlspecialchars($r['description']) ?>">
         <?= htmlspecialchars(substr($r['description'],0,50)) ?>...

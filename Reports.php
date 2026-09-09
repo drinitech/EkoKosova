@@ -1,6 +1,7 @@
 <?php
 include 'config.php';
 require_once 'blob_storage.php';
+require_once 'cities.php';
 
 
     $profile_pic = 'uploads/member.png';
@@ -130,7 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_report'])) {
 
 
 $latestReports = $conn->prepare("
-    SELECT name, city, type, description, photo, created_at
+    SELECT id, name, city, type, description, photo, created_at
     FROM reports
     ORDER BY created_at DESC
     LIMIT 3
@@ -265,10 +266,9 @@ $reports = $latestReports->fetchAll(PDO::FETCH_ASSOC);
         <label for="city">Qyteti</label>
         <select id="city" name="city">
             <option value="">Zgjedh qytetin</option>
-            <option value="prishtina">Prishtina</option>
-            <option value="gjilan">Gjilan</option>
-            <option value="mitrovice">Mitrovicë</option>
-            <option value="prizren">Prizren</option>
+            <?php foreach ($eko_cities as $slug => $label): ?>
+                <option value="<?= $slug ?>"><?= htmlspecialchars($label) ?></option>
+            <?php endforeach; ?>
         </select>
 
         <label for="type">Lloji i Ndotjes</label>
@@ -298,7 +298,7 @@ $reports = $latestReports->fetchAll(PDO::FETCH_ASSOC);
 
     <?php if(count($reports) > 0): ?>
         <?php foreach($reports as $report): ?>
-            <div class="report-card">
+            <a href="report_details.php?id=<?= $report['id'] ?>" class="report-card">
 
                 <?php if(!empty($report['photo'])): ?>
                     <img src="<?php echo htmlspecialchars(resolve_upload_url($report['photo'])); ?>">
@@ -308,7 +308,7 @@ $reports = $latestReports->fetchAll(PDO::FETCH_ASSOC);
 
                 <h4>
                     <?php echo ucfirst(htmlspecialchars($report['type'])); ?> –
-                    <?php echo ucfirst(htmlspecialchars($report['city'])); ?>
+                    <?php echo htmlspecialchars(city_label($report['city'])); ?>
                 </h4>
 
                 <p>
@@ -320,7 +320,7 @@ $reports = $latestReports->fetchAll(PDO::FETCH_ASSOC);
                     <?php echo date('d.m.Y', strtotime($report['created_at'])); ?>
                 </small>
 
-            </div>
+            </a>
         <?php endforeach; ?>
     <?php else: ?>
         <p style="text-align:center;">Nuk ka ende raporte 📭</p>

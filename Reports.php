@@ -130,18 +130,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_report'])) {
 }
 
 
-$latestReports = $conn->prepare("
+$allReportsStmt = $conn->query("
     SELECT id, name, city, type, description, photo, created_at
     FROM reports
     ORDER BY created_at DESC
-    LIMIT 3
 ");
-$latestReports->execute();
-$reports = $latestReports->fetchAll(PDO::FETCH_ASSOC);
-
-// Per harten: te gjitha raportimet, grupuar sipas qytetit.
-$allReportsStmt = $conn->query("SELECT id, city, type, created_at FROM reports ORDER BY created_at DESC");
-$allReports = $allReportsStmt->fetchAll(PDO::FETCH_ASSOC);
+$reports = $allReportsStmt->fetchAll(PDO::FETCH_ASSOC);
+$allReports = $reports;
 
 $mapByCity = [];
 foreach ($allReports as $r) {
@@ -320,7 +315,7 @@ foreach ($allReports as $r) {
 </section>
 
 <section class="latest-reports" id="shikoraporte">
-  <h2>Raportimet e Fundit</h2>
+  <h2>Të Gjitha Raportimet</h2>
 
   <div class="reports-row">
 

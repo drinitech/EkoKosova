@@ -119,7 +119,7 @@ $reports = $latestReports->fetchAll(PDO::FETCH_ASSOC);
     <div class="caption">
       <h1>Ruaj të ardhmen</h1>
       <p>Monitoro lokacionet e ndotura përmes hartës interaktive.</p>
-      <a href="Reports.php" class="btn">Harta Raporteve</a>
+      <a href="Reports.php#harta" class="btn">Harta Raporteve</a>
     </div>
   </div>
 </section>

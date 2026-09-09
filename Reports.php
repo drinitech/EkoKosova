@@ -139,6 +139,23 @@ $latestReports = $conn->prepare("
 $latestReports->execute();
 $reports = $latestReports->fetchAll(PDO::FETCH_ASSOC);
 
+// Per harten: te gjitha raportimet, grupuar sipas qytetit.
+$allReportsStmt = $conn->query("SELECT id, city, type, created_at FROM reports ORDER BY created_at DESC");
+$allReports = $allReportsStmt->fetchAll(PDO::FETCH_ASSOC);
+
+$mapByCity = [];
+foreach ($allReports as $r) {
+    if (!isset($eko_city_coords[$r['city']])) continue; // qytet i panjohur, s'ka koordinata
+
+    $mapByCity[$r['city']]['coords'] = $eko_city_coords[$r['city']];
+    $mapByCity[$r['city']]['label'] = city_label($r['city']);
+    $mapByCity[$r['city']]['reports'][] = [
+        'id' => $r['id'],
+        'type' => ucfirst($r['type']),
+        'date' => date('d.m.Y', strtotime($r['created_at'])),
+    ];
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -148,8 +165,14 @@ $reports = $latestReports->fetchAll(PDO::FETCH_ASSOC);
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
     <title>Raportimet</title>
     <style>
+        #reports-map {
+            height: 420px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
         .success-message {
             padding: 10px;
             background-color: #d4edda;
@@ -287,8 +310,13 @@ $reports = $latestReports->fetchAll(PDO::FETCH_ASSOC);
 
         <button type="submit" name="submit_report" id="submit">Dërgo Raportin</button>
     </form>
-    
 
+
+</section>
+
+<section class="map-section" id="harta">
+    <h2 style="text-align:center;">Harta e Raportimeve</h2>
+    <div id="reports-map"></div>
 </section>
 
 <section class="latest-reports" id="shikoraporte">
@@ -397,6 +425,30 @@ document.querySelectorAll('.alert').forEach(alert => {
 });
 
 
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+const mapByCity = <?= json_encode($mapByCity, JSON_UNESCAPED_UNICODE) ?>;
+
+const reportsMap = L.map('reports-map').setView([42.6629, 21.1655], 8);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    maxZoom: 18
+}).addTo(reportsMap);
+
+Object.values(mapByCity).forEach(city => {
+    const marker = L.marker(city.coords).addTo(reportsMap);
+
+    let popupHtml = `<strong>${city.label}</strong><br>${city.reports.length} raportim(e)<ul style="padding-left:16px;margin:6px 0;">`;
+    city.reports.slice(0, 5).forEach(r => {
+        popupHtml += `<li><a href="report_details.php?id=${r.id}">${r.type} - ${r.date}</a></li>`;
+    });
+    popupHtml += '</ul>';
+
+    marker.bindPopup(popupHtml);
+});
 </script>
 </body>
 </html>

@@ -195,6 +195,12 @@ button.translate:hover {
     background: #f4f6f8;
 }
 
+.map-section {
+    padding: 60px 20px 20px 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
 .latest-reports h2 {
     text-align: center;
     margin-bottom: 30px;
